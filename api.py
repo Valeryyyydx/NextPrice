@@ -8,7 +8,17 @@ import traceback
 from ai import load_artifacts, forecast_prices
 
 app = Flask(__name__)
-CORS(app)  # разрешаем запросы отовсюду
+
+# Жёсткая настройка CORS – для любых запросов с любых доменов
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+
+# Дополнительно принудительно добавляем заголовки к каждому ответу
+@app.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
+    return response
 
 # Загружаем модель и всё, что нужно (один раз при старте)
 MODEL_PATH = Path("artifacts")
